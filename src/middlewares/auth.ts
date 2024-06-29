@@ -12,19 +12,20 @@ const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // catch the token from 
     const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        'You have no authorized token',
+      );}
 
     if (authHeader) {
       // first remove the Bearer and get the actual token
       const token = authHeader.replace('Bearer ', '').trim();
       // console.log(token);
       // check is token is given
-      if (!authHeader) {
-        throw new AppError(
-          httpStatus.UNAUTHORIZED,
-          'You have no authorized token',
-        );
+    
         // check the Bearer is in the start
-      } else if (!authHeader?.startsWith('Bearer ')) {
+      if (!authHeader?.startsWith('Bearer ')) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'No Bearer at the first');
       }
       // console.log(token);
@@ -35,7 +36,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
       ) as JwtPayload;
 
       const { role, userId } = decoded;
-      // console.log(token?.startsWith('Bearer '));
+      console.log(userId);
       // checking if the token is missing
 
       // checking if the user is exist

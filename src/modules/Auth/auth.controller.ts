@@ -10,7 +10,7 @@ const getAllStudents = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Academic faculties are retrieved successfully',
+    message: 'All users are retrieved successfully',
     data: result,
   });
 });
