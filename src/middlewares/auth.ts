@@ -36,7 +36,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
       ) as JwtPayload;
 
       const { role, userId } = decoded;
-      console.log(userId);
+      // console.log(userId);
       // checking if the token is missing
 
       // checking if the user is exist
@@ -44,6 +44,10 @@ const auth = (...requiredRoles: TUserRole[]) => {
 
       if (!user) {
         throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
+      }
+
+      if(user.role==='user'){
+        throw new AppError(httpStatus.NOT_FOUND, 'Only Accessible by Admin');
       }
       // checking if the user is already deleted
 
@@ -55,6 +59,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
       }
 
       req.user = decoded as JwtPayload;
+
       next();
     }
   });

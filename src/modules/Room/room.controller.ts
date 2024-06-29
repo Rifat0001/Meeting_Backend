@@ -36,7 +36,7 @@ const getAllRooms = catchAsync(async (req, res) => {
 });
 
 const getSingleRoom = catchAsync(async (req, res) => {
-  console.log(req.params);
+  // console.log(req.params);
   const { roomId } = req.params;
   const result = await roomServices.getSingleRoomFromDB(roomId);
   //   console.log('single', result);

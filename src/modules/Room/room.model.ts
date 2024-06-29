@@ -11,4 +11,5 @@ const roomSchema = new Schema<TRoom>({
   isDeleted: { type: Boolean, required: true, default: false },
 });
 
+
 export const Room = model('Room', roomSchema);

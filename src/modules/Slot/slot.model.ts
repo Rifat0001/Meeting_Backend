@@ -1,20 +1,28 @@
-import { TSlot } from './slot.interface';
-import mongoose, { model } from 'mongoose';
+import { Schema, model } from "mongoose";
+import { TSlot } from "./slot.interface";
 
-const slotSchema = new mongoose.Schema<TSlot>({
-  room: { type: String, required: true },
-  date: { type: Date, required: true },
-  startTime: { type: String, required: true },
-  endTime: { type: String, required: true },
-  isBooked: { type: Boolean, default: false },
+const slotSchema = new Schema<TSlot>({
+  room: {
+    type: Schema.Types.ObjectId,
+    required: [true, 'Room Id is required'],
+    ref: 'Room',
+  },
+  date: {
+    type: String,
+    required: [true, 'Date is required'],
+  },
+  startTime: {
+    type: String,
+    required: [true, 'Start-Time is required'],
+  },
+  endTime: {
+    type: String,
+    required: [true, 'End-Time is required'],
+  },
+  isBooked: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-// interface Slot {
-//   room: Types.ObjectId;
-//   date: Date;
-//   startTime: string;
-//   endTime: string;
-//   isBooked: boolean;
-// }
-
-export const SlotModel = model<TSlot>('Slot', slotSchema);
+export const Slot = model<TSlot>('Slot', slotSchema);
