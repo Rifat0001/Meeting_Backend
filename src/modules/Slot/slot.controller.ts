@@ -2,11 +2,10 @@ import { Request, Response } from 'express';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import httpStatus from 'http-status';
-import { createSlotIntoDBNew } from './slot.service';
+import { slotService } from './slot.service';
 
-export const createSlotNew = catchAsync(async (req, res) => {
-  const result = await createSlotIntoDBNew(req.body);
-
+const createSlotIntoDB = catchAsync(async (req, res) => {
+  const result = await slotService.createSlotIntoDB(req.body);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -14,3 +13,26 @@ export const createSlotNew = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+// Get Available Slots Controller
+const getAvailableSlots = catchAsync(async (req, res) => {
+  const { date, roomId } = req.query;
+
+  const availableSlots = await slotService.getAvailableSlotsFormDB(
+    date as string,
+    roomId as string
+  );
+
+  // Send response
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Available slots retrieved successfully',
+    data: availableSlots,
+  });
+});
+
+
+export const slotControllers = {
+  createSlotIntoDB, getAvailableSlots
+}

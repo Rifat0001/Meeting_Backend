@@ -5,7 +5,7 @@ import { TSlot } from "./slot.interface";
 import createSlots from "./slot.utility";
 import { Slot } from "./slot.model";
 
-export const createSlotIntoDBNew = async (payload: TSlot) => {
+export const createSlotIntoDB = async (payload: TSlot) => {
   const { startTime, endTime, date, room } = payload;
 
   const roomId: any = payload?.room;
@@ -28,3 +28,42 @@ export const createSlotIntoDBNew = async (payload: TSlot) => {
   const result = await Slot.create(slots);
   return result;
 };
+
+// Get Available Slots Service
+const getAvailableSlotsFormDB = async (date?: string, roomId?: string) => {
+  let query: any = {
+    isBooked: false,
+  };
+
+  // Check roomId is valid
+  if (roomId) {
+    const existingRoom = await Room.findById(roomId);
+    if (!existingRoom) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Room not found');
+    }
+    query.room = roomId;
+  }
+
+  // Check date is valid
+  if (date) {
+    const availableSlotsCount = await Slot.countDocuments({
+      date,
+      isBooked: false,
+    });
+
+    if (availableSlotsCount === 0) {
+      throw new AppError(
+        httpStatus.NOT_FOUND,
+        'No available slots for this date'
+      );
+    }
+    query.date = date;
+  }
+
+  const result = await Slot.find(query);
+  return result;
+};
+
+export const slotService = {
+  createSlotIntoDB, getAvailableSlotsFormDB
+}
