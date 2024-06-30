@@ -16,15 +16,16 @@ const auth = (...requiredRoles: TUserRole[]) => {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
         'You have no authorized token',
-      );}
+      );
+    }
 
     if (authHeader) {
       // first remove the Bearer and get the actual token
       const token = authHeader.replace('Bearer ', '').trim();
       // console.log(token);
       // check is token is given
-    
-        // check the Bearer is in the start
+
+      // check the Bearer is in the start
       if (!authHeader?.startsWith('Bearer ')) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'No Bearer at the first');
       }
@@ -46,16 +47,17 @@ const auth = (...requiredRoles: TUserRole[]) => {
         throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
       }
 
-      if(user.role==='user'){
-        throw new AppError(httpStatus.NOT_FOUND, 'Only Accessible by Admin');
-      }
+      // if(user.role==='user'){
+      //   throw new AppError(httpStatus.NOT_FOUND, 'Only Accessible by Admin');
+      // }
       // checking if the user is already deleted
 
       if (requiredRoles && !requiredRoles.includes(role)) {
-        throw new AppError(
-          httpStatus.UNAUTHORIZED,
-          'You are not authorized  hi!',
-        );
+        return res.status(httpStatus.NOT_FOUND).json({
+          "success": false,
+          "statusCode": 401,
+          "message": "You have no access to this route",
+        });
       }
 
       req.user = decoded as JwtPayload;

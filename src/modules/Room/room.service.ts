@@ -49,18 +49,24 @@ const getAllRoomsFromDB = async () => {
   return result;
 };
 
-const getSingleRoomFromDB = async (id: string) => {
-  const result = await Room.findById(id);
-  //   console.log('result', result);
-  return result;
-};
+const getSingleRoomFromDB = async (roomId: string) => {
+  console.log('room id = ', roomId);
+  const roomExist = await Room.findOne({ _id: roomId });
+  if (!roomExist) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Room is not found !');
+  }
+  return roomExist;
+}
 
 const updateRoomFromDB = async (_id: string, updatedRoom: Partial<TRoom>) => {
   try {
     const room = await Room.findById(_id); // Find the room to update
 
+    // if (!room) {
+    //   throw new AppError(httpStatus.BAD_REQUEST, 'no room found');
+    // }
     if (!room) {
-      throw new Error('Room not found'); // Handle room not found error
+      throw new Error('Room not found'); // Handle product not found error
     }
 
     // Update specific fields using destructuring assignment
@@ -119,7 +125,7 @@ const deleteRoomFromDB = async (id: string) => {
   } catch (err) {
     await session.abortTransaction();
     await session.endSession();
-    throw new Error('Failed to delete student');
+    throw new Error('Failed to delete room');
   }
 };
 
