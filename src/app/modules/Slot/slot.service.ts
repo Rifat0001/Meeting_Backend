@@ -4,28 +4,17 @@ import { Room } from "../Room/room.model";
 import { TSlot } from "./slot.interface";
 import createSlots from "./slot.utility";
 import { Slot } from "./slot.model";
-import { TBooking } from "../Booking/booking.interface";
-import { Booking } from "../Booking/booking.model";
 
 export const createSlotIntoDB = async (payload: TSlot) => {
   try {
     const { startTime, endTime, date, room } = payload;
 
-    const roomId: any = payload?.room;
+    const roomId = payload?.room;
     const roomInfo = await Room.findById(roomId);
-    // console.log('myinfo', roomInfo)
-    //check room available or not
     if (!roomInfo) {
       throw new AppError(httpStatus.NOT_FOUND, 'Room not found!');
     }
 
-    //check room is deleted or not
-    if (roomInfo.isDeleted) {
-      throw new AppError(
-        httpStatus.BAD_REQUEST,
-        "Can't create slots, This room deleted!"
-      );
-    }
 
     const slots = createSlots(startTime, endTime, date, room);
 
@@ -38,7 +27,7 @@ export const createSlotIntoDB = async (payload: TSlot) => {
 
 // Get Available Slots Service
 const getAvailableSlotsFormDB = async (date?: string, roomId?: string) => {
-  let query: any = {
+  const query = {
     isBooked: false,
   };
 
@@ -48,7 +37,6 @@ const getAvailableSlotsFormDB = async (date?: string, roomId?: string) => {
     if (!existingRoom) {
       throw new AppError(httpStatus.NOT_FOUND, 'No Data Found');
     }
-    query.room = roomId;
   }
 
   // Check date is valid
@@ -64,7 +52,6 @@ const getAvailableSlotsFormDB = async (date?: string, roomId?: string) => {
         'No available slots for this date'
       );
     }
-    query.date = date;
   }
 
   const result = await Slot.find(query).populate('room');

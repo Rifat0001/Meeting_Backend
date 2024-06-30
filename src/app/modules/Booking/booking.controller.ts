@@ -100,7 +100,6 @@ const deleteBooking = catchAsync(async (req, res) => {
 //Get User's Bookings Controller
 const getUserBookings = catchAsync(async (req, res) => {
     const user = req.user.userId;
-    const userEx = await User.findById(user);
     const result = await bookingService.getUserBookingsFromDB(user);
     sendResponse(res, {
         statusCode: !result.length ? httpStatus.NOT_FOUND : httpStatus.OK,

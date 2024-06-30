@@ -1,11 +1,11 @@
 import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
-import router from './routes';
-import globalErrorHandler from './middlewares/globalErrorhandler';
-import notFound from './middlewares/notFound';
-import { roomRoutes } from './modules/Room/room.route';
-import { slotRoutes } from './modules/Slot/slot.route';
-import { bookingRoute } from './modules/Booking/booking.route';
+import router from './app/routes';
+import globalErrorHandler from './app/middlewares/globalErrorhandler';
+import notFound from './app/middlewares/notFound';
+import { roomRoutes } from './app/modules/Room/room.route';
+import { slotRoutes } from './app/modules/Slot/slot.route';
+import { bookingRoute } from './app/modules/Booking/booking.route';
 
 const app: Application = express();
 
