@@ -1,23 +1,72 @@
-# **instructions on how to run the application locally**
+# Meeting Room Booking System
 
-**Step - 1:** clone this git repository on your local device
-<br>
+[Meeting Room Booking System Live URL]()
 
-**Step - 2:** open the code file and run this command `npm install` to install the node modules
+## Introduction
 
-```
-npm install
+**Meeting Room Booking System**  is designed to streamline the process of booking meeting rooms online. It enables customers to book meeting rooms and manage their booking slots conveniently. This application is built using Node.js, Express Js and TypeScript.
 
-```
+## Features
 
-<br>
+- **User Authentication System**:  Implements secure authentication with JWT and bcrypt.
+- **Environment Configuration**: Manage confidential variables using dotenv.
+- **Input Validation**: Ensure all the require fields are given.
+- **Database Integration**: Integrate connection with MongoDB via Mongoose.
+- **Code Quality**: Enforced clean code with ESLint and Prettier.
 
-**Step - 3:** run `npm run start:dev` on cmd
+## Technologies Used
 
-```
-npm run start:dev
+- **Backend**:
 
-```
-<br>
+  - Node.js
+  - Express.js
+  - TypeScript
+  - Mongoose
 
-**Step - 4:** test the routes
+- **DataBase**:
+  - MongoDB
+
+- **Other Tools**:
+  - Vercel (Hosting)
+  - Git
+
+## Setup and Installation
+
+Follow these steps to set up the project locally:
+
+1. **Clone the repository:**
+   ```
+   git clone https://github.com/Rifat0001/Meeting_Backend.git
+   ```
+2. **Navigate to the project directory:**
+   ```
+   cd your-repo-name
+   ```
+3. **Install dependencies:**
+   ```
+   npm install
+   ```
+4. **Set up environment variables:**
+   ```
+   Create a .env file in the root directory and add the necessary environment variables as shown in .env.example.
+   ```
+5. **Build the project:**
+   ```
+   npm run build
+   ```
+6. **Start the application in development mode:**
+   ```
+   npm run start:dev
+   ```
+7. **Open the application in your browser:**
+   ```
+   Go to http://localhost:5000
+   ```
+
+## Usage
+
+To use the application, follow these steps:
+
+1. **SignUp/Login**: First sign up and then login with your credentials.
+2. **Protected Routes**: Use JWT to access protected routes after authentication.
+3. **Database Operations**: Perform CRUD operations using the provided routes.

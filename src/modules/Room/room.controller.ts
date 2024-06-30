@@ -36,23 +36,10 @@ const getAllRooms = catchAsync(async (req, res) => {
   });
 });
 
-// const getSingleRoom = catchAsync(async (req, res) => {
-//   // console.log(req.params);
-// const { roomId } = req.params;
-// const result = await roomServices.getSingleRoomFromDB(roomId);
-//   //   console.log('single', result);
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Room retrieved successfully',
-//     data: result,
-//   });
-// });
-// search a single product by it's id
 const getSingleRoom = async (req: Request, res: Response) => {
-  try {
+  
     const { roomId } = req.params;
-    console.log('room controller', roomId)
+    // console.log('room controller', roomId)
     const roomExist = await Room.findById(roomId);
     if (!roomExist) {
       res.status(200).json({
@@ -69,9 +56,7 @@ const getSingleRoom = async (req: Request, res: Response) => {
         data: result,
       });
     }
-  } catch (err) {
-    console.log(err);
-  }
+ 
 };
 
 const updateSingleProduct = async (req: Request, res: Response) => {

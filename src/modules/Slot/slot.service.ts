@@ -13,7 +13,7 @@ export const createSlotIntoDB = async (payload: TSlot) => {
 
     const roomId: any = payload?.room;
     const roomInfo = await Room.findById(roomId);
-    console.log('myinfo', roomInfo)
+    // console.log('myinfo', roomInfo)
     //check room available or not
     if (!roomInfo) {
       throw new AppError(httpStatus.NOT_FOUND, 'Room not found!');

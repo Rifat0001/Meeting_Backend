@@ -50,7 +50,7 @@ const getAllRoomsFromDB = async () => {
 };
 
 const getSingleRoomFromDB = async (roomId: string) => {
-  console.log('room id = ', roomId);
+  // console.log('room id = ', roomId);
   const roomExist = await Room.findOne({ _id: roomId });
   if (!roomExist) {
     throw new AppError(httpStatus.NOT_FOUND, 'Room is not found !');
@@ -112,7 +112,7 @@ const deleteRoomFromDB = async (id: string) => {
       { new: true, session },
     );
 
-    console.log(id, 'deleted', deletedRoom);
+    // console.log(id, 'deleted', deletedRoom);
 
     if (!deletedRoom) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete room');
