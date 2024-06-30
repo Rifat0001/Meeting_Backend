@@ -65,7 +65,7 @@ const getSingleRoom = async (req: Request, res: Response) => {
       const result = await roomServices.getSingleRoomFromDB(roomId);
       res.status(200).json({
         success: true,
-        message: 'Product fetched successfully!',
+        message: 'Room retrieved successfully',
         data: result,
       });
     }

@@ -1,6 +1,6 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const createSlotValidationSchema = z.object({
+const createSlotValidationSchema = z.object({
   body: z.object({
     room: z.string(),
     date: z.string(),
@@ -9,3 +9,7 @@ export const createSlotValidationSchema = z.object({
     isBooked: z.boolean().optional(),
   }),
 });
+
+export const SlotValidations = {
+  createSlotValidationSchema,
+};
