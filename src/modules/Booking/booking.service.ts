@@ -6,114 +6,161 @@ import { Room } from "../Room/room.model";
 import { Slot } from "../Slot/slot.model";
 import { Booking } from "./booking.model";
 
-export const createBookingIntoDB = async (bookingData: TBooking) => {
-    console.log('user ID:', bookingData.user);
-    try {
-      const user = await User.findById(bookingData.user);
-      console.log('user', user);
-    } catch (error) {
-      // Type guard to check if error is an Error object
-      if (error instanceof Error) {
-        console.error('Error finding user:', error.message);
-        throw error; // Re-throw the error for handling in controller
-      } else {
-        // Handle unexpected errors (consider logging or throwing a custom error)
-        console.error('Unknown error finding user:', error);
-      }
+// Create Booking Service
+const createBookingIntoDB = async (payload: TBooking) => {
+  const { room, slots, date, user } = payload;
+
+  //   console.log(payload);
+
+  // Check is user exists
+  const isExistingUser = await User.findById(user);
+  if (!isExistingUser) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  //check is room exists
+  const isExistingRoom = await Room.findById(room);
+  if (!isExistingRoom) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This Room not found!');
+  }
+
+  // check room deleted
+  if (isExistingRoom.isDeleted) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Unable to booking, this room is deleted'
+    );
+  }
+
+  // Check slots are available this date
+  const availableSlotsCount = await Slot.countDocuments({
+    date,
+    isBooked: false,
+  });
+
+  if (availableSlotsCount === 0) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `No available slots this date: ${date} `
+    );
+  }
+
+  // Check all slots exist
+  const isExistingSlots = [];
+  for (const slotId of slots) {
+    const existingSlot = await Slot.findById(slotId);
+    if (!existingSlot) {
+      isExistingSlots.push(slotId);
     }
-  
-    console.log('room ID:', bookingData.room);
-    try {
-      const room = await Room.findById(bookingData.room);
-      if (!room) {
-        throw new Error('Room not found');
-      }
-    } catch (error) {
-      // Type guard to check if error is an Error object
-      if (error instanceof Error) {
-        console.error('Error finding room:', error.message);
-        throw error; // Re-throw the error for handling in controller
-      } else {
-        // Handle unexpected errors (consider logging or throwing a custom error)
-        console.error('Unknown error finding room:', error);
-      }
+  }
+
+  if (isExistingSlots.length > 0) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      `This Slot not found: ${isExistingSlots.join(', ')}`
+    );
+  }
+
+  // Check slots array is empty
+  if (!Array.isArray(slots) || slots.length === 0) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'At least one slot must be provided'
+    );
+  }
+
+  // Check slots array duplicate slots
+  const uniqueSlots = [...new Set(slots)];
+  if (uniqueSlots.length !== slots.length) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Duplicate slots are not allowed'
+    );
+  }
+
+  // Check slots are already booked
+  const bookedSlots = await Slot.find({ _id: { $in: slots }, isBooked: true });
+  if (bookedSlots.length > 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'This slots are already booked');
+  }
+
+  // total amount slots booked
+  const totalAmount = slots.length * isExistingRoom.pricePerSlot;
+
+  const createdBooking = await Booking.create({
+    ...payload,
+    totalAmount,
+  });
+
+  // Populate room, slots, and user fields in the booking
+  const result = await Booking.findById(createdBooking._id)
+    .populate('room')
+    .populate('slots')
+    .populate('user');
+
+  return result;
+};
+
+const getAllBookingsFromDB = async () => {
+  const result = await Booking.find()
+    .populate('room')
+    .populate('slots')
+    .populate('user');
+  return result;
+};
+
+// Update Booking Service
+const updateBookingIntoDB = async (id: string, payload: Partial<TBooking>) => {
+  // check Booking is exists
+  const isBookingExists = await Booking.findById(id);
+
+  if (!isBookingExists) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This booking is not found !');
+  }
+
+  // booking is deleted
+  if (isBookingExists?.isDeleted) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "Can't update booking, This booking deleted !"
+    );
+  }
+
+  const result = await Booking.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  });
+
+  return result;
+};
+
+// Deleted Booking Service
+const deleteBookingFromDB = async (id: string) => {
+  // check booking is exists
+  const isBookingExists = await Booking.findById(id);
+
+  if (!isBookingExists) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This booking is not found !');
+  }
+
+  // booking is deleted
+  if (isBookingExists?.isDeleted) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      'This booking is already deleted !'
+    );
+  }
+
+  const result = await Booking.findByIdAndUpdate(
+    id,
+    { isDeleted: true },
+    {
+      new: true,
     }
-  
-    // Check if all slots exist using $in operator (MongoDB)
-    const slotsExist = await Slot.find({ _id: { $in: bookingData.slots } });
-    if (slotsExist.length !== bookingData.slots.length) {
-      throw new Error('One or more slots not found');
-    }
-  
-    // Booking creation logic assuming validation is done elsewhere
-    const booking = await Booking.create(bookingData);
-    return booking;
-  };
-  
-
-
-// export const createBookingIntoDB = async (payload: TBooking) => {
-//     const { room, slots, date, user } = payload;
-//     console.log('payload', payload);
-
-//     // Check if user exists
-//     const userinfo = await User.findById(user);
-//     if (!userinfo) {
-//         throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
-//     }
-
-//     // Check if room exists and is not deleted
-//     const isExistingRoom = await Room.findById(room);
-//     if (!isExistingRoom) {
-//         throw new AppError(httpStatus.NOT_FOUND, 'This Room not found!');
-//     }
-//     if (isExistingRoom.isDeleted) {
-//         throw new AppError(httpStatus.BAD_REQUEST, 'Unable to book, this room is deleted');
-//     }
-
-//     // Check if slots are provided and valid
-//     if (!Array.isArray(slots) || slots.length === 0) {
-//         throw new AppError(httpStatus.BAD_REQUEST, 'At least one slot must be provided');
-//     }
-
-//     // Check for duplicate slots in the array
-//     const uniqueSlots = [...new Set(slots)];
-//     if (uniqueSlots.length !== slots.length) {
-//         throw new AppError(httpStatus.BAD_REQUEST, 'Duplicate slots are not allowed');
-//     }
-
-//     // Check if all slots exist and are not already booked
-//     const nonExistingSlots = [];
-//     for (const slotId of slots) {
-//         const existingSlot = await Slot.findById(slotId);
-//         if (!existingSlot) {
-//             nonExistingSlots.push(slotId);
-//         } else if (existingSlot.isBooked) {
-//             throw new AppError(httpStatus.BAD_REQUEST, `Slot already booked: ${slotId}`);
-//         }
-//     }
-//     if (nonExistingSlots.length > 0) {
-//         throw new AppError(httpStatus.NOT_FOUND, `Slot(s) not found: ${nonExistingSlots.join(', ')}`);
-//     }
-
-//     // Calculate total amount based on the room's price per slot
-//     const totalAmount = slots.length * isExistingRoom.pricePerSlot;
-
-//     // Create booking
-//     const createdBooking = await Booking.create({
-//         ...payload,
-//         totalAmount,
-//     });
-
-//     // Populate room, slots, and user fields in the booking
-//     const result = await Booking.findById(createdBooking._id)
-//         .populate('room')
-//         .populate('slots')
-//         .populate('user');
-
-//     return result;
-// };
+  );
+  return result;
+};
 
 export const bookingService = {
-    createBookingIntoDB
+  createBookingIntoDB, getAllBookingsFromDB, updateBookingIntoDB, deleteBookingFromDB
 }

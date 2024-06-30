@@ -4,6 +4,8 @@ import { Room } from "../Room/room.model";
 import { TSlot } from "./slot.interface";
 import createSlots from "./slot.utility";
 import { Slot } from "./slot.model";
+import { TBooking } from "../Booking/booking.interface";
+import { Booking } from "../Booking/booking.model";
 
 export const createSlotIntoDB = async (payload: TSlot) => {
   try {
@@ -44,7 +46,7 @@ const getAvailableSlotsFormDB = async (date?: string, roomId?: string) => {
   if (roomId) {
     const existingRoom = await Room.findById(roomId);
     if (!existingRoom) {
-      throw new AppError(httpStatus.NOT_FOUND, 'Room not found');
+      throw new AppError(httpStatus.NOT_FOUND, 'No Data Found');
     }
     query.room = roomId;
   }
@@ -68,6 +70,7 @@ const getAvailableSlotsFormDB = async (date?: string, roomId?: string) => {
   const result = await Slot.find(query).populate('room');
   return result;
 };
+
 
 export const slotService = {
   createSlotIntoDB, getAvailableSlotsFormDB

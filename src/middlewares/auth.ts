@@ -13,10 +13,11 @@ const auth = (...requiredRoles: TUserRole[]) => {
     // catch the token from 
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      throw new AppError(
-        httpStatus.UNAUTHORIZED,
-        'You have no authorized token',
-      );
+      return res.status(httpStatus.NOT_FOUND).json({
+        "success": false,
+        "statusCode": 401,
+        "message": "You have no access to this route",
+      });
     }
 
     if (authHeader) {
