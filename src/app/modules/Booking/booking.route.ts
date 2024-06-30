@@ -8,7 +8,9 @@ import validateRequest from "../../middlewares/validateRequest";
 import { bookingValidation } from "./booking.validate";
 
 const router = express.Router();
+
 router.post('/bookings', validateRequest(bookingValidation.createBookingValidationSchema), auth(USER_ROLE.user), BookingController.createBooking);
+
 router.get('/bookings', auth(USER_ROLE.admin), BookingController.getAllBookings);
 // Update Bookings route
 router.put(
