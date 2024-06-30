@@ -42,10 +42,14 @@ const auth = (...requiredRoles: TUserRole[]) => {
       // checking if the token is missing
 
       // checking if the user is exist
-      const user = await User.findById(userId);
+      const userExist = await User.findById(userId);
 
-      if (!user) {
-        throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
+      if (!userExist) {
+        return res.status(httpStatus.NOT_FOUND).json({
+          "success": false,
+          "statusCode": 401,
+          "message": "You have no access to this route",
+        });
       }
 
       // if(user.role==='user'){
@@ -60,9 +64,6 @@ const auth = (...requiredRoles: TUserRole[]) => {
           "message": "You have no access to this route",
         });
       }
-
-      req.user = decoded as JwtPayload;
-
       next();
     }
   });
