@@ -5,6 +5,7 @@ import { TBooking } from "./booking.interface";
 import { Room } from "../Room/room.model";
 import { Slot } from "../Slot/slot.model";
 import { Booking } from "./booking.model";
+import { JwtPayload } from "jsonwebtoken";
 
 // Create Booking Service
 const createBookingIntoDB = async (payload: TBooking) => {
@@ -134,6 +135,15 @@ const updateBookingIntoDB = async (id: string, payload: Partial<TBooking>) => {
   return result;
 };
 
+//Get User's Bookings Service
+const getUserBookingsFromDB = async (user: JwtPayload) => {
+  const result = await Booking.find({ user: user })
+    .populate('room')
+    .populate('slots');
+
+  return !result.length ? [] : result;
+};
+
 // Deleted Booking Service
 const deleteBookingFromDB = async (id: string) => {
   // check booking is exists
@@ -162,5 +172,5 @@ const deleteBookingFromDB = async (id: string) => {
 };
 
 export const bookingService = {
-  createBookingIntoDB, getAllBookingsFromDB, updateBookingIntoDB, deleteBookingFromDB
+  createBookingIntoDB, getAllBookingsFromDB, updateBookingIntoDB, deleteBookingFromDB, getUserBookingsFromDB
 }
