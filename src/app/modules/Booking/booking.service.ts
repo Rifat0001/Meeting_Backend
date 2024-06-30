@@ -7,25 +7,24 @@ import { Slot } from "../Slot/slot.model";
 import { Booking } from "./booking.model";
 import { JwtPayload } from "jsonwebtoken";
 
+
 // Create Booking Service
 const createBookingIntoDB = async (payload: TBooking) => {
   const { room, slots, date, user } = payload;
 
-  //   console.log(payload);
-
-  // Check is user exists
+  // Check if user exists
   const isExistingUser = await User.findById(user);
   if (!isExistingUser) {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
 
-  //check is room exists
+  // Check if room exists
   const isExistingRoom = await Room.findById(room);
   if (!isExistingRoom) {
     throw new AppError(httpStatus.NOT_FOUND, 'This Room not found!');
   }
 
-  // check room deleted
+  // Check room deleted
   if (isExistingRoom.isDeleted) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -85,7 +84,7 @@ const createBookingIntoDB = async (payload: TBooking) => {
     throw new AppError(httpStatus.BAD_REQUEST, 'This slots are already booked');
   }
 
-  // total amount slots booked
+  // Total amount slots booked
   const totalAmount = slots.length * isExistingRoom.pricePerSlot;
 
   const createdBooking = await Booking.create({
@@ -93,10 +92,15 @@ const createBookingIntoDB = async (payload: TBooking) => {
     totalAmount,
   });
 
-  // Populate room, slots, and user fields in the booking
+  // Update `isBooked` for each slot after booking creation
+  for (const slotId of slots) {
+    await Slot.findByIdAndUpdate(slotId, { $set: { isBooked: true } });
+  }
+
+  // Populate room, slots, and user fields in the booking (optional)
   const result = await Booking.findById(createdBooking._id)
     .populate('room')
-    .populate('slots')
+    .populate('slots') // Populate slot objects if needed
     .populate('user');
 
   return result;
@@ -109,6 +113,7 @@ const getAllBookingsFromDB = async () => {
     .populate('user');
   return result;
 };
+
 
 // Update Booking Service
 const updateBookingIntoDB = async (id: string, payload: Partial<TBooking>) => {
