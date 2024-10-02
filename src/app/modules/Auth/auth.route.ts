@@ -19,4 +19,7 @@ router.put('/user/:id', auth(USER_ROLE.admin), AuthControllers.updateUserRoleCon
 
 router.put('/user/update/:id', auth(USER_ROLE.admin, USER_ROLE.user), AuthControllers.updateUserInfo);
 
+// Route to delete a slot by ID (Admin only)
+router.delete('/user/:id', auth(USER_ROLE.admin), AuthControllers.deleteUser);
+
 export const AuthRoutes = router;

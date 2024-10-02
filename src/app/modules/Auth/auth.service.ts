@@ -115,6 +115,15 @@ const updateUserInformation = async (id: string, updates: Partial<TUser>): Promi
   return user;
 };
 
+const deleteUserFromDB = async (id: string) => {
+  const user = await User.findOne({ _id: id });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  await User.findByIdAndDelete(id);
+  return { message: 'User deleted successfully' };
+};
 
 
 export const AuthServices = {
@@ -123,5 +132,6 @@ export const AuthServices = {
   getAllUser,
   updateUserRole,
   getSingleUserFromDB,
-  updateUserInformation
+  updateUserInformation,
+  deleteUserFromDB
 };
