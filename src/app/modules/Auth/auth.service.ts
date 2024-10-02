@@ -100,15 +100,15 @@ const updateUserInformation = async (id: string, updates: Partial<TUser>): Promi
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
 
-  // Update the user information while preserving the role
+  // Update the user information while preserving the existing password
   user.name = updates.name ?? user.name;
   user.email = updates.email ?? user.email;
   user.phone = updates.phone ?? user.phone;
   user.address = updates.address ?? user.address;
 
-  // Only update the password if provided
-  if (updates.password) {
-    user.password = await bcrypt.hash(updates.password, 10);
+  // Only update the password if it's provided and not an empty string
+  if (updates.password && updates.password.trim() !== '') {
+    user.password = updates.password; // This will be hashed in the pre-save hook
   }
 
   await user.save();

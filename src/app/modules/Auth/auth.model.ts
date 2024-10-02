@@ -17,25 +17,28 @@ const userSchema = new Schema<TUser>({
   isDeleted: { type: Boolean, required: true, default: false },
 });
 
+// Pre-save middleware to hash password only if it's modified and not empty
 userSchema.pre('save', async function (next) {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this; // doc
-  // hashing password and save into DB
+  const user = this;
 
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_rounds),
-  );
+  // Only hash the password if it has been modified and is not empty
+  if (user.isModified('password') && user.password) {
+    user.password = await bcrypt.hash(
+      user.password,
+      Number(config.bcrypt_salt_rounds)
+    );
+  }
 
   next();
 });
 
-// set '' after saving password
+// Set password to an empty string after saving to prevent exposing hashed password
 userSchema.post('save', function (doc, next) {
   doc.password = '';
   next();
 });
 
+// Static methods
 userSchema.statics.isUserExistsByCustomId = async function (id: string) {
   return await User.findOne({ id }).select('+password');
 };
@@ -45,19 +48,26 @@ userSchema.statics.isUserExist = async function (id: string) {
 };
 
 userSchema.statics.isPasswordMatched = async function (
-  plainTextPassword,
-  hashedPassword,
+  plainTextPassword: string,
+  hashedPassword: string
 ) {
   return await bcrypt.compare(plainTextPassword, hashedPassword);
 };
 
 userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
   passwordChangedTimestamp: Date,
-  jwtIssuedTimestamp: number,
+  jwtIssuedTimestamp: number
 ) {
-  const passwordChangedTime =
-    new Date(passwordChangedTimestamp).getTime() / 1000;
+  const passwordChangedTime = new Date(passwordChangedTimestamp).getTime() / 1000;
   return passwordChangedTime > jwtIssuedTimestamp;
+};
+
+// Method to update password explicitly (optional)
+userSchema.methods.updatePassword = async function (newPassword: string) {
+  if (newPassword) {
+    this.password = newPassword; // Set the new password
+    await this.save(); // Save the user document to trigger the pre-save hook
+  }
 };
 
 export const User = model<TUser>('User', userSchema);
