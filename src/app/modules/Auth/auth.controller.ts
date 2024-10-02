@@ -3,6 +3,7 @@ import config from '../../config';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { AuthServices } from './auth.service';
+import { TUser } from './auth.interface';
 
 const getAllStudents = catchAsync(async (req, res) => {
   const result = await AuthServices.getAllUser();
@@ -53,6 +54,8 @@ const loginUser = catchAsync(async (req, res) => {
     role,
     address,
   };
+
+  console.log(result)
   res.send({
     success: true,
     statusCode: httpStatus.OK,
@@ -62,10 +65,52 @@ const loginUser = catchAsync(async (req, res) => {
   });
 });
 
+// Update user role controller
+const updateUserRoleController = catchAsync(async (req, res) => {
+  const userId = req.params.id; // Get userId from route params
+  console.log('hi', userId)
+  const updatedUser = await AuthServices.updateUserRole(userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User role updated successfully',
+    data: updatedUser,
+  });
+});
+
+const getUserById = catchAsync(async (req, res) => {
+  const userId = req.params.id;
+  const result = await AuthServices.getSingleUserFromDB(userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'user retrieved successfully',
+    data: result,
+  });
+});
+
+// Update user information controller
+const updateUserInfo = catchAsync(async (req, res) => {
+  const userId = req.user.userId; // Get userId from the decoded token.
+
+  const updatedUser = await AuthServices.updateUserInformation(userId, req.body);
+  console.log('update', updatedUser)
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User information updated successfully',
+    data: updatedUser,
+  });
+});
+
+
 export const AuthControllers = {
   loginUser,
   getAllStudents,
   signUpUser,
-  // changePassword,
-  // refreshToken,
+  updateUserRoleController,
+  getUserById,
+  updateUserInfo
 };

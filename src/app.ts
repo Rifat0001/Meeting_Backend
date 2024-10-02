@@ -11,7 +11,14 @@ const app: Application = express();
 
 // parsers
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests from any origin by returning the origin of the request
+    callback(null, origin || '*');
+  },
+  credentials: true, // Allow cookies and credentials to be sent
+}));
+
 
 app.get('/', (req: Request, res: Response) => {
   res.json({

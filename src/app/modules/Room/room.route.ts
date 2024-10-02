@@ -6,6 +6,7 @@ import { USER_ROLE } from '../Auth/auth.constant';
 const router = express.Router();
 
 router.post('/rooms', auth(USER_ROLE.admin), roomControllers.createRoom);
+
 router.get('/rooms', roomControllers.getAllRooms);
 router.get('/rooms/:roomId', roomControllers.getSingleRoom);
 router.put(

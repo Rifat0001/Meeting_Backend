@@ -45,7 +45,8 @@ const createRoomIntoDB = async (payload: TRoom) => {
 };
 
 const getAllRoomsFromDB = async () => {
-  const result = await Room.find();
+  const result = await Room.find({ isDeleted: false });
+  // const rooms = await Room.find({ idDeleted: false });
   return result;
 };
 
@@ -105,18 +106,11 @@ const deleteRoomFromDB = async (id: string) => {
 
   try {
     session.startTransaction();
-
     const deletedRoom = await Room.findByIdAndUpdate(
       id,
       { isDeleted: true },
       { new: true, session },
     );
-
-    // console.log(id, 'deleted', deletedRoom);
-
-    if (!deletedRoom) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete room');
-    }
 
     await session.commitTransaction();
     await session.endSession();

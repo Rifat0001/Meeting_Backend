@@ -6,6 +6,7 @@ import { createToken } from './auth.utils';
 import config from '../../config';
 import { User } from './auth.model';
 import AppError from '../../errors/AppError';
+import { USER_ROLE } from './auth.constant';
 
 const signUpUsersIntoDB = async (payload: TUser) => {
   const result = await User.create(payload);
@@ -70,112 +71,57 @@ const getAllUser = async () => {
   return result;
 };
 
-// const changePassword = async (
-//   userData: JwtPayload,
-//   payload: { oldPassword: string; newPassword: string },
-// ) => {
-//   // checking if the user is exist
-//   const user = await User.isUserExistsByCustomId(userData.userId);
+// Update user role service
+const updateUserRole = async (id: string): Promise<TUser | null> => {
+  const user = await User.findOne({ _id: id });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
 
-//   if (!user) {
-//     throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
-//   }
-//   // checking if the user is already deleted
+  // Toggle user role
+  user.role = user.role === 'user' ? 'admin' : 'user';
+  await user.save();
+  return user;
+};
 
-//   const isDeleted = user?.isDeleted;
+const getSingleUserFromDB = async (id: string) => {
+  // console.log('room id = ', roomId);
+  const userExist = await User.findOne({ _id: id });
+  if (!userExist) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User is not found !');
+  }
+  return userExist;
+}
 
-//   if (isDeleted) {
-//     throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
-//   }
+// Update user information service
+const updateUserInformation = async (id: string, updates: Partial<TUser>): Promise<TUser | null> => {
+  const user = await User.findOne({ _id: id });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
 
-//   // checking if the user is blocked
+  // Update the user information while preserving the role
+  user.name = updates.name ?? user.name;
+  user.email = updates.email ?? user.email;
+  user.phone = updates.phone ?? user.phone;
+  user.address = updates.address ?? user.address;
 
-//   const userStatus = user?.status;
+  // Only update the password if provided
+  if (updates.password) {
+    user.password = await bcrypt.hash(updates.password, 10);
+  }
 
-//   if (userStatus === 'blocked') {
-//     throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
-//   }
+  await user.save();
+  return user;
+};
 
-//   //checking if the password is correct
 
-//   if (!(await User.isPasswordMatched(payload.oldPassword, user?.password)))
-//     throw new AppError(httpStatus.FORBIDDEN, 'Password do not matched');
-
-//   //hash new password
-//   const newHashedPassword = await bcrypt.hash(
-//     payload.newPassword,
-//     Number(config.bcrypt_salt_rounds),
-//   );
-
-//   await User.findOneAndUpdate(
-//     {
-//       id: userData.userId,
-//       role: userData.role,
-//     },
-//     {
-//       password: newHashedPassword,
-//       needsPasswordChange: false,
-//       passwordChangedAt: new Date(),
-//     },
-//   );
-
-//   return null;
-// };
-
-// const refreshToken = async (token: string) => {
-//   // checking if the given token is valid
-//   const decoded = jwt.verify(
-//     token,
-//     config.jwt_refresh_secret as string,
-//   ) as JwtPayload;
-
-//   const { userId, iat } = decoded;
-
-//   // checking if the user is exist
-//   const user = await User.findById(userId);
-
-//   if (!user) {
-//     throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
-//   }
-//   // checking if the user is already deleted
-//   const isDeleted = user?.isDeleted;
-
-//   if (isDeleted) {
-//     throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
-//   }
-
-//   // checking if the user is blocked
-//   const userStatus = user?.status;
-
-//   if (userStatus === 'blocked') {
-//     throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
-//   }
-
-//   // if (
-//   //   user.passwordChangedAt &&
-//   //   User.isJWTIssuedBeforePasswordChanged(user.passwordChangedAt, iat as number)
-//   // ) {
-//   //   throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized !');
-//   // }
-
-//   const jwtPayload = {
-//     userId: user.id,
-//     role: user.role,
-//   };
-
-//   const accessToken = createToken(
-//     jwtPayload,
-//     config.jwt_access_secret as string,
-//     config.jwt_access_expires_in as string,
-//   );
-
-//   return {
-//     accessToken,
-//   };
-// };
 
 export const AuthServices = {
   loginUser,
   signUpUsersIntoDB,
-  getAllUser
+  getAllUser,
+  updateUserRole,
+  getSingleUserFromDB,
+  updateUserInformation
 };

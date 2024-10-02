@@ -15,6 +15,7 @@ const createRoom = catchAsync(async (req, res) => {
     capacity: result.capacity,
     pricePerSlot: result.pricePerSlot,
     amenities: result.amenities,
+    images: result.images,
     isDeleted: result.isDeleted,
   };
   sendResponse(res, {
@@ -37,26 +38,26 @@ const getAllRooms = catchAsync(async (req, res) => {
 });
 
 const getSingleRoom = async (req: Request, res: Response) => {
-  
-    const { roomId } = req.params;
-    // console.log('room controller', roomId)
-    const roomExist = await Room.findById(roomId);
-    if (!roomExist) {
-      res.status(200).json({
-        "success": false,
-        "statusCode": 404,
-        "message": "No Data Found",
-        "data": []
-      });
-    } else {
-      const result = await roomServices.getSingleRoomFromDB(roomId);
-      res.status(200).json({
-        success: true,
-        message: 'Room retrieved successfully',
-        data: result,
-      });
-    }
- 
+
+  const { roomId } = req.params;
+  // console.log('room controller', roomId)
+  const roomExist = await Room.findById(roomId);
+  if (!roomExist) {
+    res.status(200).json({
+      "success": false,
+      "statusCode": 404,
+      "message": "No Data Found",
+      "data": []
+    });
+  } else {
+    const result = await roomServices.getSingleRoomFromDB(roomId);
+    res.status(200).json({
+      success: true,
+      message: 'Room retrieved successfully',
+      data: result,
+    });
+  }
+
 };
 
 const updateSingleProduct = async (req: Request, res: Response) => {

@@ -5,6 +5,7 @@ export interface TRoom {
     capacity: number;
     pricePerSlot: number;
     amenities: string[]; // Array of amenities (strings)
+    images:string[];
     isDeleted: boolean;
   }
   

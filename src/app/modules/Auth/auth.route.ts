@@ -1,5 +1,7 @@
 import express from 'express';
 import { AuthControllers } from './auth.controller';
+import auth from '../../middlewares/auth';
+import { USER_ROLE } from './auth.constant';
 
 const router = express.Router();
 
@@ -10,5 +12,11 @@ router.post(
 );
 
 router.get('/user', AuthControllers.getAllStudents);
+
+router.get('/user/:id', AuthControllers.getUserById);
+
+router.put('/user/:id', auth(USER_ROLE.admin), AuthControllers.updateUserRoleController);
+
+router.put('/user/update/:id', auth(USER_ROLE.admin, USER_ROLE.user), AuthControllers.updateUserInfo);
 
 export const AuthRoutes = router;

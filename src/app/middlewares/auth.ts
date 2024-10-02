@@ -15,16 +15,16 @@ const auth = (...requiredRoles: TUserRole[]) => {
       return res.status(httpStatus.NOT_FOUND).json({
         "success": false,
         "statusCode": 401,
-        "message": "You have no access to this route",
+        "message": "You have no access to this route header",
       });
     }
 
     if (authHeader) {
-      const token = authHeader.replace('Bearer ', '').trim();
+      const token = authHeader;
 
-      if (!authHeader?.startsWith('Bearer ')) {
-        throw new AppError(httpStatus.UNAUTHORIZED, 'No Bearer at the first');
-      }
+      // if (!authHeader?.startsWith('Bearer ')) {
+      //   throw new AppError(httpStatus.UNAUTHORIZED, 'No Bearer at the first');
+      // }
 
       const decoded = jwt.verify(
         token,
@@ -39,7 +39,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
         return res.status(httpStatus.NOT_FOUND).json({
           "success": false,
           "statusCode": 401,
-          "message": "You have no access to this route",
+          "message": "You have no access to this route user no",
         });
       }
 
@@ -47,7 +47,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
         return res.status(httpStatus.NOT_FOUND).json({
           "success": false,
           "statusCode": 401,
-          "message": "You have no access to this route",
+          "message": "You have no access to this route role",
         });
       }
 

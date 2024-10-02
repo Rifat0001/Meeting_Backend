@@ -19,6 +19,8 @@ export const createRoomSchema = z.object({
   // Amenities must be an array of strings and is required
   amenities: z.array(z.string()),
 
+  images: z.array(z.string()),
+
   // isDeleted is optional and defaults to false (not deleted)
   isDeleted: z.boolean().optional(),
 });
